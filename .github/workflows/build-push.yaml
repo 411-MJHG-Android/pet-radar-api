@@ -1,0 +1,28 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker Build
+        run: docker build -t majirriz20/pet-radar-api:latest .
+
+      - name: Docker Tag
+        run: docker tag majirriz20/pet-radar-api:latest majirriz20/pet-radar-api:${{ github.sha }}
+
+      - name: Docker Login
+        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Docker Push
+        run: |
+          docker push majirriz20/pet-radar-api:latest
+          docker push majirriz20/pet-radar-api:${{ github.sha }}
