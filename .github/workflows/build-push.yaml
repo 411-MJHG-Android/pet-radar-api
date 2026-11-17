@@ -26,3 +26,18 @@ jobs:
         run: |
           docker push majirriz20/pet-radar-api:latest
           docker push majirriz20/pet-radar-api:${{ github.sha }}
+
+    deploy:
+      needs: build-and-push
+      runs-on: ubuntu-latest
+      steps:
+        - name: Deploy code to AWS EC2
+          uses: appleboy/ssh-action@master
+          with: 
+            host: ${{ secret.HOST }}
+            username: ${{ secret.USER }}
+            key: ${{ secret.SSH_KEY }}
+            script: 
+              cd /containers/pet-radar-api
+              sudo docker pull majirriz20/pet-radar-api:latest
+              sudo docker compose up -d
